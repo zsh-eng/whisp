@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "./.wxt/tsconfig.json",
+    "@workspace/typescript-config/nextjs.json"
+  ],
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@workspace/ui/*": ["../../packages/ui/src/*"]
+    }
+  }
+}
