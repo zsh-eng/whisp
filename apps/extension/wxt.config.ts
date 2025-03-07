@@ -5,6 +5,29 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   extensionApi: 'chrome',
   modules: ['@wxt-dev/module-react'],
+  manifest: ({ browser }) => ({
+    name: 'Whisp',
+    permissions: ['activeTab', 'scripting'],
+    web_accessible_resources: [
+      {
+        resources: ['content-scripts/whisp-panel.css'],
+        matches: ['<all_urls>'],
+      },
+      {
+        resources: ['content-scripts/whisp-panel.js'],
+        matches: ['<all_urls>'],
+      },
+    ],
+    commands: {
+      'start-recording': {
+        description: 'Start recording audio',
+        suggested_key: {
+          default: 'Ctrl+Shift+X',
+          mac: 'Command+Shift+X',
+        },
+      },
+    },
+  }),
   vite: () => ({
     plugins: [tailwindcss()],
   }),
