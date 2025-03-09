@@ -1,11 +1,16 @@
 import '@workspace/ui/globals.css';
+import '~/assets/public.css';
+
 import { cn } from '@workspace/ui/lib/utils';
-import { CircleStopIcon, MicIcon } from 'lucide-react';
+import { MicIcon } from 'lucide-react';
 import { useAudioRecorder } from '../../hooks/use-audio-recorder';
 
 export default function WhispPanelApp() {
   const [audioData, setAudioData] = useState<Float32Array | null>(null);
   const [timecode, setTimecode] = useState<number | null>(null);
+
+  const { transcriptionText, handleTranscription, isTranscribing } =
+    useTranscription();
 
   const handleDataAvailable = useCallback(
     (data: Float32Array, timecode: number) => {
@@ -16,8 +21,7 @@ export default function WhispPanelApp() {
   );
 
   const handleRecordingComplete = useCallback(async (audioBlob: Blob) => {
-    console.log('audioBlob', audioBlob);
-    setTimecode(null);
+    await handleTranscription(audioBlob);
   }, []);
 
   const {
@@ -30,34 +34,43 @@ export default function WhispPanelApp() {
     onRecordingComplete: handleRecordingComplete,
   });
 
+  // useEffect(() => {
+  //   startRecording();
+  // }, []);
+
+  const numMinutes = timecode ? Math.floor(timecode / 60 / 1000) : 0;
+  const numSeconds =
+    `${timecode ? Math.floor((timecode % 60000) / 1000) : 0}`.padStart(2, '0');
+
   return (
-    <div className={cn('fixed bottom-[2em] left-[2em]')}>
+    <div className={cn('fixed top-[2em] left-[2em]')}>
       <div
-        className='flex items-center gap-2  rounded-full w-[16em] h-[3em] bg-background px-[1.5em] py-[.5em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'
+        className='slide-in-from-top-bouncy flex items-center gap-[1em] rounded-[.25em] w-[20em] h-[3em] bg-background px-[1em] py-[.5em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'
         onClick={() => {
           if (isRecording) {
             stopRecording();
           } else {
+            setTimecode(null);
             startRecording();
           }
         }}
       >
-        {isRecording ? (
-          <>
-            <CircleStopIcon className='size-[1em]' />
-            <Waveform
-              audioData={audioData}
-              isRecording={isRecording}
-              timecode={timecode}
-            />
-          </>
-        ) : (
-          <>
-            <MicIcon className='size-[1em]' />
-            <span className='text-sm font-medium'>Start Recording</span>
-          </>
-        )}
+        <MicIcon className='size-[1.5em]' />
+        <Waveform
+          audioData={audioData}
+          isRecording={isRecording}
+          timecode={timecode}
+        />
+        <div className='text-[.9em]'>
+          {numMinutes}:{numSeconds}
+        </div>
       </div>
+
+      {transcriptionText && (
+        <div className='animate-in zoom-in mt-[.5em] px-[1em] py-[.5em] rounded-[.25em] w-[20em] h-max bg-background'>
+          {<div className='text-[.875em] font-medium'>{transcriptionText}</div>}
+        </div>
+      )}
     </div>
   );
 }

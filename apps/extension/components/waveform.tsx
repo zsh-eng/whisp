@@ -112,7 +112,7 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
 
       ctx.beginPath();
       // Draw with different colors based on recording state
-      ctx.strokeStyle = isRecording ? 'rgb(59, 130, 246)' : mutedColor;
+      ctx.strokeStyle = isRecording ? '#6a41b4' : mutedColor;
       ctx.lineWidth = 2;
       ctx.lineCap = 'round';
 
@@ -135,11 +135,11 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
         // The "bottom" of the line is > centerY and closer to canvas.height
         const topOfLine = Math.min(
           centerY - 4,
-          centerY - amplitude.value * canvas.height * 10
+          centerY - amplitude.value * canvas.height * 5
         );
         const bottomOfLine = Math.max(
           centerY + 4,
-          centerY + amplitude.value * canvas.height * 10
+          centerY + amplitude.value * canvas.height * 5
         );
         ctx.moveTo(x, topOfLine);
         ctx.lineTo(x, bottomOfLine);
