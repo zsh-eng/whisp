@@ -2,7 +2,8 @@ import '@workspace/ui/globals.css';
 import '~/assets/public.css';
 
 import { cn } from '@workspace/ui/lib/utils';
-import { MicIcon } from 'lucide-react';
+import { CircleCheck, Loader2, MicIcon } from 'lucide-react';
+import Keycap from '../../components/keycap';
 import { useAudioRecorder } from '../../hooks/use-audio-recorder';
 import { useToggleRecorder } from '../../hooks/use-toggle-recorder';
 
@@ -61,6 +62,8 @@ export default function WhispPanelApp() {
   const numMinutes = timecode ? Math.floor(timecode / 60 / 1000) : 0;
   const numSeconds =
     `${timecode ? Math.floor((timecode % 60000) / 1000) : 0}`.padStart(2, '0');
+  const numHundredthsOfSeconds =
+    `${timecode ? Math.floor((timecode % 1000) / 10) : 0}`.padStart(2, '0');
 
   return (
     <div
@@ -69,6 +72,17 @@ export default function WhispPanelApp() {
         isOpen ? '' : 'hidden'
       )}
     >
+      {/* <div className='w-full flex items-center gap-[.5em]'>
+        <div className='flex items-center gap-[.5em] bg-background rounded-[.5em] px-[.5em] py-[.5em] shadow-xl border border-solid border-muted-foreground/20'>
+          <div className='flex items-center w-max gap-[.25em]'>
+            <Keycap character='⇧' />
+            <Keycap character='⌘' />
+            <Keycap character='S' />
+          </div>
+          <div className='text-[.75em]'>Stop recording</div>
+        </div>
+      </div> */}
+
       {transcriptionText && (
         <div className='animate-in zoom-in px-[1em] py-[.5em] rounded-[1em] w-[24em] h-max bg-background border border-solid border-muted-foreground/20'>
           {<div className='text-[.875em] font-medium'>{transcriptionText}</div>}
@@ -86,14 +100,20 @@ export default function WhispPanelApp() {
           }
         }}
       >
-        <MicIcon className='size-[1.5em]' />
+        {isTranscribing ? (
+          <Loader2 className='size-[1.5em] animate-spin text-cyan-500' />
+        ) : transcriptionText ? (
+          <CircleCheck className='size-[1.5em] text-blue-500' />
+        ) : (
+          <MicIcon className='size-[1.5em]' />
+        )}
         <Waveform
           audioData={audioData}
           isRecording={isRecording}
           timecode={timecode}
         />
-        <div className='text-[.9em]'>
-          {numMinutes}:{numSeconds}
+        <div className='text-[.8em]'>
+          {numMinutes}:{numSeconds},{numHundredthsOfSeconds}
         </div>
       </div>
     </div>
