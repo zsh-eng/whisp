@@ -5,6 +5,7 @@ type UseTranscriptionReturn = {
   isTranscribing: boolean;
   error: string | null;
   handleTranscription: (audioBlob: Blob) => Promise<void>;
+  resetTranscription: () => void;
 };
 
 export function useTranscription(): UseTranscriptionReturn {
@@ -32,10 +33,17 @@ export function useTranscription(): UseTranscriptionReturn {
     }
   }, []);
 
+  const resetTranscription = useCallback(() => {
+    setTranscriptionText(null);
+    setError(null);
+    setIsTranscribing(false);
+  }, []);
+
   return {
     transcriptionText,
     isTranscribing,
     error,
     handleTranscription,
+    resetTranscription,
   };
 }

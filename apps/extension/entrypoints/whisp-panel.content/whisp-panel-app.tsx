@@ -15,8 +15,12 @@ export default function WhispPanelApp() {
   const [timecode, setTimecode] = useState<number | null>(null);
 
   const { isOpen, isOpenRef } = useToggleRecorder();
-  const { transcriptionText, handleTranscription, isTranscribing } =
-    useTranscription();
+  const {
+    transcriptionText,
+    handleTranscription,
+    isTranscribing,
+    resetTranscription,
+  } = useTranscription();
 
   const handleDataAvailable = useCallback(
     (data: Float32Array, timecode: number) => {
@@ -58,6 +62,9 @@ export default function WhispPanelApp() {
       setTimecode(null);
       startRecording();
     } else {
+      resetTranscription();
+      setAudioData(null);
+      setTimecode(null);
       stopRecording();
     }
   }, [isOpen]);
@@ -114,9 +121,9 @@ export default function WhispPanelApp() {
         }}
       >
         {isTranscribing ? (
-          <Loader2 className='size-[1.5em] animate-spin text-cyan-500' />
+          <Loader2 className='size-[2em] animate-spin text-[#6a41b4]' />
         ) : transcriptionText ? (
-          <CircleCheck className='size-[1.5em] text-blue-500' />
+          <CircleCheck className='size-[2em] text-[#6a41b4]' />
         ) : (
           <MicIcon className='size-[1.5em]' />
         )}
