@@ -43,9 +43,9 @@ export default function WhispPanelApp() {
     `${timecode ? Math.floor((timecode % 60000) / 1000) : 0}`.padStart(2, '0');
 
   return (
-    <div className={cn('fixed top-[2em] left-[2em]')}>
+    <div className={cn('fixed bottom-[2em] left-1/2 -translate-x-1/2 translate-y-0')}>
       <div
-        className='slide-in-from-top-bouncy flex items-center gap-[1em] rounded-[.25em] w-[20em] h-[3em] bg-background px-[1em] py-[.5em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'
+        className='zoom-in-bouncy flex items-center gap-[1em] rounded-full w-[20em] h-[3em] bg-background px-[1em] py-[.5em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'
         onClick={() => {
           if (isRecording) {
             stopRecording();
@@ -67,7 +67,7 @@ export default function WhispPanelApp() {
       </div>
 
       {transcriptionText && (
-        <div className='animate-in zoom-in mt-[.5em] px-[1em] py-[.5em] rounded-[.25em] w-[20em] h-max bg-background'>
+        <div className='animate-in zoom-in mt-[.5em] px-[1em] py-[.5em] rounded-[.5em] w-[20em] h-max bg-background'>
           {<div className='text-[.875em] font-medium'>{transcriptionText}</div>}
         </div>
       )}
