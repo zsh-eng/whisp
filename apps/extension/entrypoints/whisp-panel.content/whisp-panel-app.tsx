@@ -3,8 +3,11 @@ import '~/assets/public.css';
 
 import { cn } from '@workspace/ui/lib/utils';
 import { CircleCheck, Loader2, MicIcon } from 'lucide-react';
-import Keycap from '../../components/keycap';
 import { useAudioRecorder } from '../../hooks/use-audio-recorder';
+import {
+  useCopyToClipboard,
+  useCopyToClipboardShortcut,
+} from '../../hooks/use-insert-at-cursor';
 import { useToggleRecorder } from '../../hooks/use-toggle-recorder';
 
 export default function WhispPanelApp() {
@@ -59,6 +62,16 @@ export default function WhispPanelApp() {
     }
   }, [isOpen]);
 
+  const { copyToClipboard } = useCopyToClipboard();
+  const handleCopyToClipboard = useCallback(() => {
+    if (transcriptionText) {
+      copyToClipboard(transcriptionText);
+    }
+  }, [copyToClipboard, transcriptionText]);
+  useCopyToClipboardShortcut({
+    onCopyToClipboard: handleCopyToClipboard,
+  });
+
   const numMinutes = timecode ? Math.floor(timecode / 60 / 1000) : 0;
   const numSeconds =
     `${timecode ? Math.floor((timecode % 60000) / 1000) : 0}`.padStart(2, '0');
@@ -112,7 +125,8 @@ export default function WhispPanelApp() {
           isRecording={isRecording}
           timecode={timecode}
         />
-        <div className='text-[.8em]'>
+
+        <div className='text-[.8em] w-[6em]'>
           {numMinutes}:{numSeconds},{numHundredthsOfSeconds}
         </div>
       </div>
