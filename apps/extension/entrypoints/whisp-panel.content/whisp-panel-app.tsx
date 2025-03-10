@@ -16,7 +16,7 @@ export default function WhispPanelApp() {
 
   const { isOpen, isOpenRef } = useToggleRecorder();
   const {
-    transcriptionText,
+    transcription,
     handleTranscription,
     isTranscribing,
     resetTranscription,
@@ -71,10 +71,10 @@ export default function WhispPanelApp() {
 
   const { copyToClipboard } = useCopyToClipboard();
   const handleCopyToClipboard = useCallback(() => {
-    if (transcriptionText) {
-      copyToClipboard(transcriptionText);
+    if (transcription?.text) {
+      copyToClipboard(transcription.text);
     }
-  }, [copyToClipboard, transcriptionText]);
+  }, [copyToClipboard, transcription]);
   useCopyToClipboardShortcut({
     onCopyToClipboard: handleCopyToClipboard,
   });
@@ -103,9 +103,9 @@ export default function WhispPanelApp() {
         </div>
       </div> */}
 
-      {transcriptionText && (
+      {transcription?.text && (
         <div className='animate-in zoom-in px-[1em] py-[.5em] rounded-[1em] w-[24em] h-max bg-background border border-solid border-muted-foreground/20'>
-          {<div className='text-[.875em] font-medium'>{transcriptionText}</div>}
+          {<div className='text-[.875em] font-medium'>{transcription.text}</div>}
         </div>
       )}
 
@@ -122,7 +122,7 @@ export default function WhispPanelApp() {
       >
         {isTranscribing ? (
           <Loader2 className='size-[2em] animate-spin text-[#6a41b4]' />
-        ) : transcriptionText ? (
+        ) : transcription?.text ? (
           <CircleCheck className='size-[2em] text-[#6a41b4]' />
         ) : (
           <MicIcon className='size-[1.5em]' />

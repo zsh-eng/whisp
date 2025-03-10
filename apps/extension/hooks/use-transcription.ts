@@ -1,7 +1,9 @@
+import { useCallback, useState } from 'react';
+import { WhisperVerboseJSON } from '../lib/transcribe-verbose-json';
 import { transcribeAudio } from '../lib/transcription';
 
 type UseTranscriptionReturn = {
-  transcriptionText: string | null;
+  transcription: WhisperVerboseJSON | null;
   isTranscribing: boolean;
   error: string | null;
   handleTranscription: (audioBlob: Blob) => Promise<void>;
@@ -9,23 +11,22 @@ type UseTranscriptionReturn = {
 };
 
 export function useTranscription(): UseTranscriptionReturn {
-  const [transcriptionText, setTranscriptionText] = useState<string | null>(
-    null
-  );
+  const [transcriptionVerboseJson, setTranscriptionVerboseJson] =
+    useState<WhisperVerboseJSON | null>(null);
   const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleTranscription = useCallback(async (audioBlob: Blob) => {
     try {
-      setTranscriptionText(null);
+      setTranscriptionVerboseJson(null);
       setError(null);
       setIsTranscribing(true);
 
-      const text = await transcribeAudio(
+      const data = await transcribeAudio(
         audioBlob,
         import.meta.env.VITE_PUBLIC_API_KEY
       );
-      setTranscriptionText(text);
+      setTranscriptionVerboseJson(data);
     } catch (error) {
       setError(error as string);
     } finally {
@@ -34,13 +35,13 @@ export function useTranscription(): UseTranscriptionReturn {
   }, []);
 
   const resetTranscription = useCallback(() => {
-    setTranscriptionText(null);
+    setTranscriptionVerboseJson(null);
     setError(null);
     setIsTranscribing(false);
   }, []);
 
   return {
-    transcriptionText,
+    transcription: transcriptionVerboseJson,
     isTranscribing,
     error,
     handleTranscription,

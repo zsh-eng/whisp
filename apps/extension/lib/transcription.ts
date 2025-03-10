@@ -1,11 +1,21 @@
+import {
+  WhisperVerboseJSON,
+  WhisperVerboseJSONSchema,
+} from './transcribe-verbose-json';
+
+const WHISPER_LANGUAGE = 'en';
+const WHISPER_MODEL = 'whisper-1';
+
 export async function transcribeAudio(
   audioBlob: Blob,
   apiKey: string
-): Promise<string> {
+): Promise<WhisperVerboseJSON> {
   try {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.wav');
-    formData.append('model', 'whisper-1');
+    formData.append('model', WHISPER_MODEL);
+    formData.append('language', WHISPER_LANGUAGE);
+    formData.append('response_format', 'verbose_json');
 
     const response = await fetch(
       'https://api.openai.com/v1/audio/transcriptions',
@@ -26,8 +36,12 @@ export async function transcribeAudio(
     }
 
     const data = await response.json();
-    console.log('transcription data', data.text);
-    return data.text || 'No speech detected';
+    const parsedData = WhisperVerboseJSONSchema.safeParse(data);
+    if (!parsedData.success) {
+      throw new Error('Failed to parse transcription data');
+    }
+
+    return parsedData.data;
   } catch (error) {
     console.error('Error transcribing audio', error);
     throw error;
