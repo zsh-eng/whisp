@@ -52,7 +52,6 @@ function parseTimecode(timecode: string): SubtitleTime {
 }
 
 function blockToSubtitle(block: string): Subtitle {
-  console.log(block, 'block');
   const regex =
     /^(?<index>\d+)\n(?<start>\d{2}:\d{2}:\d{2},\d{3}) --> (?<end>\d{2}:\d{2}:\d{2},\d{3})\n(?<text>[\s\S]+)$/;
 

@@ -41,6 +41,7 @@ export async function transcribeAudio(
       throw new Error('Failed to parse transcription data');
     }
 
+    console.log('transcription object', parsedData.data);
     return parsedData.data;
   } catch (error) {
     console.error('Error transcribing audio', error);

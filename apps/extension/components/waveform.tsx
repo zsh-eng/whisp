@@ -16,8 +16,8 @@ type Amplitude = {
 
 export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvasWidth = 200;
-  const canvasHeight = 60;
+  const canvasWidth = 800;
+  const canvasHeight = 80;
 
   // Store amplitude values with their timecodes
   const amplitudesRef = useRef<Amplitude[]>([]);
@@ -30,7 +30,7 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
    * The size of each time slice in milliseconds.
    * This number is separate from the speed at which the waveform is moving to the left.
    */
-  const speedPixelsPerMs = 0.15;
+  const speedPixelsPerMs = 0.3;
 
   useEffect(() => {
     if (!isRecording) {
@@ -97,12 +97,12 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
 
       // Have a redline at the end of the waveform
       const currentEndOfWaveform = Math.round(
-        Math.min(relativeTimestamp * speedPixelsPerMs, canvas.width - 8)
+        Math.min(relativeTimestamp * speedPixelsPerMs, canvas.width - 10)
       );
 
       ctx.beginPath();
       ctx.strokeStyle = 'red';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 6;
       ctx.lineCap = 'round';
 
       const redLineX = currentEndOfWaveform + 6;
@@ -112,8 +112,8 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
 
       ctx.beginPath();
       // Draw with different colors based on recording state
-      ctx.strokeStyle = isRecording ? '#6a41b4' : mutedColor;
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = isRecording ? 'black' : mutedColor;
+      ctx.lineWidth = 6;
       ctx.lineCap = 'round';
 
       for (let i = amplitudesRef.current.length - 1; i >= 0; i--) {
@@ -168,7 +168,7 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
         ref={canvasRef}
         width={canvasWidth}
         height={canvasHeight}
-        className='w-full h-full'
+        className='w-full'
       />
     </div>
   );
