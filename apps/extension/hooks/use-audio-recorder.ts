@@ -105,7 +105,7 @@ export function useAudioRecorder({
   }, [onRecordingComplete, onDataAvailable]);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       // Stop all tracks on the stream
       mediaRecorderRef.current.stream
@@ -121,7 +121,7 @@ export function useAudioRecorder({
         audioContextRef.current.close();
       }
     }
-  }, [isRecording]);
+  }, []);
 
   return {
     isRecording,
