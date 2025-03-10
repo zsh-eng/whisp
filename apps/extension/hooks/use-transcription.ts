@@ -10,6 +10,9 @@ type UseTranscriptionReturn = {
   resetTranscription: () => void;
 };
 
+/**
+ * Handles the transcription of audio with OpenAI's Whisper API.
+ */
 export function useTranscription(): UseTranscriptionReturn {
   const [transcriptionVerboseJson, setTranscriptionVerboseJson] =
     useState<WhisperVerboseJSON | null>(null);

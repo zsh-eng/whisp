@@ -16,7 +16,11 @@ import {
   useCopyToClipboardShortcut,
 } from '../../hooks/use-insert-at-cursor';
 import { usePasteSegments } from '../../hooks/use-paste-segments';
-import { useToggleRecorder } from '../../hooks/use-toggle-recorder';
+import {
+  useStopRecordingShortcut,
+  useToggleRecorderUi,
+} from '../../hooks/use-toggle-recorder';
+import { useTranscription } from '../../hooks/use-transcription';
 import {
   formatPasteSegment,
   formatTimecode,
@@ -24,11 +28,12 @@ import {
 } from '../../lib/format';
 
 export default function WhispPanelApp() {
-  const [audioData, setAudioData] = useState<Float32Array | null>(null);
-  const [timecode, setTimecode] = useState<number | null>(null);
-  const timecodeRef = useRef<number | null>(null);
+  const {
+    isOpen: isRecorderUiOpen,
+    isOpenRef: isRecorderUiOpenRef,
+    setIsOpen: setIsRecorderUiOpen,
+  } = useToggleRecorderUi();
 
-  const { isOpen, isOpenRef, setIsOpen } = useToggleRecorder();
   const {
     transcription,
     handleTranscription,
@@ -36,7 +41,16 @@ export default function WhispPanelApp() {
     resetTranscription,
   } = useTranscription();
 
-  const handleDataAvailable = useCallback(
+  // AUDIO RECORDING
+  const [audioData, setAudioData] = useState<Float32Array | null>(null);
+  const [timecode, setTimecode] = useState<number | null>(null);
+  /**
+   * Reference to the current timecode - used for the paste segments hook to
+   * get the latest timecode.
+   */
+  const timecodeRef = useRef<number | null>(null);
+  /** Receives the audio data from the audio recorder. */
+  const handleAudioDataAvailable = useCallback(
     (data: Float32Array, timecode: number) => {
       setAudioData(data);
       setTimecode(timecode);
@@ -44,28 +58,29 @@ export default function WhispPanelApp() {
     },
     []
   );
-
-  const handleRecordingComplete = useCallback(
+  /** Handles the completion of a recording. */
+  const handleAudioRecordingComplete = useCallback(
     async (audioBlob: Blob) => {
-      if (!isOpenRef.current) {
+      if (!isRecorderUiOpenRef.current) {
         return;
       }
 
       await handleTranscription(audioBlob);
     },
-    [isOpenRef]
+    [isRecorderUiOpenRef]
   );
-
   const {
     isRecording,
     startRecording,
     stopRecording,
     error: recordingError,
   } = useAudioRecorder({
-    onDataAvailable: handleDataAvailable,
-    onRecordingComplete: handleRecordingComplete,
+    onDataAvailable: handleAudioDataAvailable,
+    onRecordingComplete: handleAudioRecordingComplete,
   });
 
+  // Cleanup function when we want to completely reset the audio recording state
+  // for example, when the UI is closed and re-opened
   const stopRecordingAndReset = useCallback(() => {
     stopRecording();
     resetTranscription();
@@ -73,29 +88,28 @@ export default function WhispPanelApp() {
     setTimecode(null);
     timecodeRef.current = null;
   }, []);
-
+  // Keyboard shortcut to stop the recording
   useStopRecordingShortcut({
     onStopRecording: () => {
       stopRecording();
     },
   });
 
+  // Automatically start recording when the UI is opened
+  // and reset the state completely when the UI is closed.
   useEffect(() => {
-    if (isOpen) {
-      setTimecode(null);
-      timecodeRef.current = null;
+    if (isRecorderUiOpen) {
       startRecording();
     } else {
       stopRecordingAndReset();
     }
-  }, [isOpen]);
-
-  const { copyToClipboard } = useCopyToClipboard();
+  }, [isRecorderUiOpen]);
 
   const numMinutes = timecode ? Math.floor(timecode / 60 / 1000) : 0;
   const numSeconds =
     `${timecode ? Math.floor((timecode % 60000) / 1000) : 0}`.padStart(2, '0');
 
+  const { copyToClipboard } = useCopyToClipboard();
   const { pasteSegments, removePasteSegment } = usePasteSegments({
     active: isRecording,
     getCurrentTimecode: () => timecodeRef.current ?? 0,
@@ -104,7 +118,6 @@ export default function WhispPanelApp() {
   const transcribedText = transcription
     ? formatTranscriptionWithPasteSegments(transcription, pasteSegments)
     : null;
-
   const handleCopyToClipboard = useCallback(() => {
     if (!transcribedText) {
       return;
@@ -119,9 +132,10 @@ export default function WhispPanelApp() {
         )
         .join('\n\n')
     );
+
     // Close after copying to clipboard
-    setIsOpen(false);
-  }, [copyToClipboard, transcribedText, setIsOpen]);
+    setIsRecorderUiOpen(false);
+  }, [copyToClipboard, transcribedText, setIsRecorderUiOpen]);
   useCopyToClipboardShortcut({
     onCopyToClipboard: handleCopyToClipboard,
   });
@@ -130,7 +144,7 @@ export default function WhispPanelApp() {
     <div
       className={cn(
         'fixed bottom-[2em] left-1/2 -translate-x-1/2 translate-y-0 flex flex-col items-center gap-[.75em]',
-        isOpen ? '' : 'hidden'
+        isRecorderUiOpen ? '' : 'hidden'
       )}
     >
       {/* <div className='w-full flex items-center gap-[.5em]'>

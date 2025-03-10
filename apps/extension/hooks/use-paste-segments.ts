@@ -17,8 +17,10 @@ type UsePasteSegmentsArgs = {
   getCurrentTimecode: () => number;
 };
 
-// We want to detect points where the user is pasting text,
-// and record the timecode of the paste.
+/**
+ * Detects points where the user is pasting text,
+ * and records the timecode of the paste.
+ */
 export function usePasteSegments({
   active,
   getCurrentTimecode,

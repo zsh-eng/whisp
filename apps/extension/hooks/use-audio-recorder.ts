@@ -14,6 +14,9 @@ interface UseAudioRecorderReturn {
   error: string | null;
 }
 
+/**
+ * Handles the recording of audio from the microphone.
+ */
 export function useAudioRecorder({
   onRecordingComplete,
   onDataAvailable,

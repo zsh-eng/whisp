@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-export function useToggleRecorder() {
+/**
+ * Handles the visibilty of the recorder UI.
+ */
+export function useToggleRecorderUi() {
   const [isOpen, setIsOpen] = useState(false);
   const isOpenRef = useRef(isOpen);
 
@@ -25,6 +28,10 @@ export function useToggleRecorder() {
   return { isOpen, setIsOpen, isOpenRef };
 }
 
+/**
+ * Handles the stopping of the recording.
+ * Default shortcut is `Cmd + Shift + S`.
+ */
 export function useStopRecordingShortcut({
   onStopRecording,
 }: {
