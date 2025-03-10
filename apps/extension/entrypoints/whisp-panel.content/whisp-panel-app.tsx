@@ -16,11 +16,128 @@ import {
   useCopyToClipboardShortcut,
 } from '../../hooks/use-insert-at-cursor';
 import { useToggleRecorder } from '../../hooks/use-toggle-recorder';
+import { WhisperVerboseJSON } from '../../lib/transcribe-verbose-json';
 
 function formatTimecode(timeInSeconds: number) {
   const minutes = Math.floor(timeInSeconds / 60);
   const seconds = Math.round(timeInSeconds % 60);
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function formatPasteSegment(pasteSegment: PasteSegment) {
+  const [firstWord, ...rest] = pasteSegment.text.split(' ');
+  if (!firstWord) {
+    throw new Error('should have at least 1 word');
+  }
+
+  if (firstWord.length > 10) {
+    return firstWord.slice(0, 10) + '...';
+  }
+
+  if (rest.length === 0) {
+    return firstWord;
+  }
+
+  return `${firstWord}...`;
+}
+
+type Segment =
+  | {
+      type: 'transcription';
+      text: string;
+    }
+  | {
+      type: 'paste';
+      text: string;
+      timecodeInSeconds: number;
+    };
+
+function mergeTranscriptionAndPasteSegments(
+  transcription: WhisperVerboseJSON,
+  pasteSegments: PasteSegment[]
+): Segment[] {
+  const result: Segment[] = [];
+
+  let transcriptionIndex = 0;
+  let pasteIndex = 0;
+
+  while (
+    transcriptionIndex < transcription.segments.length &&
+    pasteIndex < pasteSegments.length
+  ) {
+    const transcriptionSegment = transcription.segments[transcriptionIndex]!;
+    const pasteSegment = pasteSegments[pasteIndex]!;
+
+    if (
+      transcriptionSegment.start < Math.floor(pasteSegment.timecodeInSeconds)
+    ) {
+      const hasPrevious = result.length > 0;
+      const previousIsTranscription =
+        result[result.length - 1]?.type === 'transcription';
+
+      if (hasPrevious && previousIsTranscription) {
+        result[result.length - 1]!.text += ` ${transcriptionSegment.text}`;
+      } else {
+        result.push({
+          type: 'transcription',
+          text: transcriptionSegment.text,
+        });
+      }
+      transcriptionIndex++;
+    } else {
+      result.push({
+        type: 'paste',
+        text: pasteSegment.text,
+        timecodeInSeconds: pasteSegment.timecodeInSeconds,
+      });
+      pasteIndex++;
+    }
+  }
+
+  while (transcriptionIndex < transcription.segments.length) {
+    const hasPrevious = result.length > 0;
+    const previousIsTranscription =
+      result[result.length - 1]?.type === 'transcription';
+
+    if (hasPrevious && previousIsTranscription) {
+      result[result.length - 1]!.text +=
+        ` ${transcription.segments[transcriptionIndex]!.text}`;
+    } else {
+      result.push({
+        type: 'transcription',
+        text: transcription.segments[transcriptionIndex]!.text,
+      });
+    }
+    transcriptionIndex++;
+  }
+
+  while (pasteIndex < pasteSegments.length) {
+    result.push({
+      type: 'paste',
+      text: pasteSegments[pasteIndex]!.text,
+      timecodeInSeconds: pasteSegments[pasteIndex]!.timecodeInSeconds,
+    });
+    pasteIndex++;
+  }
+
+  return result;
+}
+
+function composeTranscription(
+  transcription: WhisperVerboseJSON,
+  pasteSegments: PasteSegment[]
+) {
+  if (pasteSegments.length === 0) {
+    console.log('no paste segments');
+    return [
+      {
+        type: 'transcription',
+        text: transcription.text,
+      },
+    ];
+  }
+
+  return mergeTranscriptionAndPasteSegments(transcription, pasteSegments);
 }
 
 export default function WhispPanelApp() {
@@ -91,14 +208,6 @@ export default function WhispPanelApp() {
   }, [isOpen]);
 
   const { copyToClipboard } = useCopyToClipboard();
-  const handleCopyToClipboard = useCallback(() => {
-    if (transcription?.text) {
-      copyToClipboard(transcription.text);
-    }
-  }, [copyToClipboard, transcription]);
-  useCopyToClipboardShortcut({
-    onCopyToClipboard: handleCopyToClipboard,
-  });
 
   const numMinutes = timecode ? Math.floor(timecode / 60 / 1000) : 0;
   const numSeconds =
@@ -107,6 +216,29 @@ export default function WhispPanelApp() {
   const { pasteSegments, removePasteSegment } = usePasteSegments({
     active: isRecording,
     getCurrentTimecode: () => timecodeRef.current ?? 0,
+  });
+
+  const transcribedText = transcription
+    ? composeTranscription(transcription, pasteSegments)
+    : null;
+
+  const handleCopyToClipboard = useCallback(() => {
+    if (!transcribedText) {
+      return;
+    }
+
+    copyToClipboard(
+      transcribedText
+        .map((segment) =>
+          segment.type === 'paste'
+            ? `<pasted-text>${segment.text}</pasted-text>`
+            : segment.text
+        )
+        .join('\n\n')
+    );
+  }, [copyToClipboard, transcribedText]);
+  useCopyToClipboardShortcut({
+    onCopyToClipboard: handleCopyToClipboard,
   });
 
   return (
@@ -128,16 +260,28 @@ export default function WhispPanelApp() {
       </div> */}
 
       {transcription?.text && (
-        <div className='animate-in zoom-in px-[1em] py-[.5em] rounded-[1em] w-[24em] h-max bg-background border border-solid border-muted-foreground/20'>
-          {
-            <div className='text-[.875em] font-medium'>
-              {transcription.text}
-            </div>
-          }
+        <div className='animate-in zoom-in px-[1em] py-[1em] rounded-[1em] w-[32em] h-max bg-background border border-solid border-muted-foreground/20 text-[.875em] font-medium text-muted-foreground'>
+          {transcribedText?.map((segment, i) => {
+            if (segment.type === 'transcription') {
+              return <div key={`transcription-${i}`}>{segment.text}</div>;
+            }
+
+            return (
+              <div
+                key={`paste-${i}`}
+                className='bg-muted rounded-[.5em] px-[.5em] py-[.5em] my-[.5em]'
+              >
+                <Badge variant='outline' className='text-[.875em] mb-[.25em]'>
+                  <span>Pasted</span>
+                </Badge>
+                <span className='line-clamp-2 px-[.5em]'>{segment.text}</span>
+              </div>
+            );
+          })}
         </div>
       )}
       <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'>
-        <div className='w-full flex gap-[.25em] overflow-x-auto'>
+        <div className='w-full flex gap-[.25em] flex-wrap h-full'>
           {pasteSegments.length === 0 && (
             <Badge variant='secondary' className=''>
               <ClipboardList className='' />
@@ -154,7 +298,7 @@ export default function WhispPanelApp() {
               <span className='text-muted-foreground'>
                 {`${formatTimecode(pasteSegment.timecodeInSeconds)}`}
               </span>
-              {pasteSegment.text.slice(0, 10).trim()}...
+              {formatPasteSegment(pasteSegment)}
               <span
                 className='text-muted-foreground px-[.25em]'
                 onClick={() =>

@@ -25,9 +25,9 @@ export function usePasteSegments({
 }: UsePasteSegmentsArgs): UsePasteSegmentsReturn {
   const [pasteSegments, setPasteSegments] = useState<PasteSegment[]>([]);
 
-  // Reset when the hook is deactivated
+  // Reset when the hooks is activated
   useEffect(() => {
-    if (!active) {
+    if (active) {
       setPasteSegments([]);
       return;
     }
