@@ -128,7 +128,6 @@ function composeTranscription(
   pasteSegments: PasteSegment[]
 ) {
   if (pasteSegments.length === 0) {
-    console.log('no paste segments');
     return [
       {
         type: 'transcription',
@@ -145,7 +144,7 @@ export default function WhispPanelApp() {
   const [timecode, setTimecode] = useState<number | null>(null);
   const timecodeRef = useRef<number | null>(null);
 
-  const { isOpen, isOpenRef } = useToggleRecorder();
+  const { isOpen, isOpenRef, setIsOpen } = useToggleRecorder();
   const {
     transcription,
     handleTranscription,
@@ -236,7 +235,9 @@ export default function WhispPanelApp() {
         )
         .join('\n\n')
     );
-  }, [copyToClipboard, transcribedText]);
+    // Close after copying to clipboard
+    setIsOpen(false);
+  }, [copyToClipboard, transcribedText, setIsOpen]);
   useCopyToClipboardShortcut({
     onCopyToClipboard: handleCopyToClipboard,
   });
@@ -280,7 +281,7 @@ export default function WhispPanelApp() {
           })}
         </div>
       )}
-      <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'>
+      <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-xl border border-solid border-muted-foreground/20'>
         <div className='w-full flex gap-[.25em] flex-wrap h-full'>
           {pasteSegments.length === 0 && (
             <Badge variant='secondary' className=''>
@@ -319,8 +320,16 @@ export default function WhispPanelApp() {
           ) : transcription?.text ? (
             <CircleCheck className='size-[1.5em] text-cyan-500 zoom-in-bouncy' />
           ) : (
-            <MicIcon className='size-[1.5em]' />
+            <MicIcon
+              className='size-[1.5em]'
+              onClick={() => {
+                if (isRecording) {
+                  stopRecording();
+                }
+              }}
+            />
           )}
+
           <Waveform
             audioData={audioData}
             isRecording={isRecording}
