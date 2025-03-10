@@ -101,7 +101,7 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
       );
 
       ctx.beginPath();
-      ctx.strokeStyle = 'red';
+      ctx.strokeStyle = 'oklch(0.715 0.143 215.221)';
       ctx.lineWidth = 6;
       ctx.lineCap = 'round';
 
@@ -133,16 +133,16 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
         // Have a minimum height of the rectangle to look nicer
         // Recall that the "top" of the line is < centerY and closer to 0
         // The "bottom" of the line is > centerY and closer to canvas.height
-        const topOfLine = Math.min(
-          centerY - 4,
-          centerY - amplitude.value * canvas.height * 5
+        const clampedTopOfLine = Math.max(
+          8,
+          Math.min(centerY - 4, centerY - amplitude.value * canvas.height * 5)
         );
-        const bottomOfLine = Math.max(
-          centerY + 4,
-          centerY + amplitude.value * canvas.height * 5
+        const clampedBottomOfLine = Math.min(
+          Math.max(centerY + 4, centerY + amplitude.value * canvas.height * 5),
+          canvas.height - 8
         );
-        ctx.moveTo(x, topOfLine);
-        ctx.lineTo(x, bottomOfLine);
+        ctx.moveTo(x, clampedTopOfLine);
+        ctx.lineTo(x, clampedBottomOfLine);
       }
 
       ctx.stroke();
