@@ -1,15 +1,10 @@
 import '@workspace/ui/globals.css';
 import '~/assets/public.css';
 
-import { Badge } from '@workspace/ui/components/badge';
 import { cn } from '@workspace/ui/lib/utils';
-import {
-  CircleCheck,
-  ClipboardList,
-  Loader2,
-  MicIcon,
-  XIcon,
-} from 'lucide-react';
+import { PasteSegmentBadges } from '../../components/paste-segment-badges';
+import { RecorderContainer } from '../../components/recorder-container';
+import { TranscribedTextCard } from '../../components/transcribed-text-card';
 import { useAudioRecorder } from '../../hooks/use-audio-recorder';
 import {
   useCopyToClipboard,
@@ -21,11 +16,7 @@ import {
   useToggleRecorderUi,
 } from '../../hooks/use-toggle-recorder';
 import { useTranscription } from '../../hooks/use-transcription';
-import {
-  formatPasteSegment,
-  formatTimecode,
-  formatTranscriptionWithPasteSegments,
-} from '../../lib/format';
+import { formatTranscriptionWithPasteSegments } from '../../lib/format';
 
 export default function WhispPanelApp() {
   const {
@@ -99,15 +90,13 @@ export default function WhispPanelApp() {
   // and reset the state completely when the UI is closed.
   useEffect(() => {
     if (isRecorderUiOpen) {
+      setTimecode(null);
+      timecodeRef.current = null;
       startRecording();
     } else {
       stopRecordingAndReset();
     }
   }, [isRecorderUiOpen]);
-
-  const numMinutes = timecode ? Math.floor(timecode / 60 / 1000) : 0;
-  const numSeconds =
-    `${timecode ? Math.floor((timecode % 60000) / 1000) : 0}`.padStart(2, '0');
 
   const { copyToClipboard } = useCopyToClipboard();
   const { pasteSegments, removePasteSegment } = usePasteSegments({
@@ -158,86 +147,29 @@ export default function WhispPanelApp() {
         </div>
       </div> */}
 
-      {transcription?.text && (
-        <div className='animate-in zoom-in px-[1em] py-[1em] rounded-[1em] w-[32em] h-max bg-background border border-solid border-muted-foreground/20 text-[.875em] font-medium text-muted-foreground'>
-          {transcribedText?.map((segment, i) => {
-            if (segment.type === 'transcription') {
-              return <div key={`transcription-${i}`}>{segment.text}</div>;
-            }
-
-            return (
-              <div
-                key={`paste-${i}`}
-                className='bg-muted rounded-[.5em] px-[.5em] py-[.5em] my-[.5em]'
-              >
-                <Badge variant='outline' className='text-[.875em] mb-[.25em]'>
-                  <span>Pasted</span>
-                </Badge>
-                <span className='line-clamp-2 px-[.5em]'>{segment.text}</span>
-              </div>
-            );
-          })}
-        </div>
+      {transcribedText && (
+        <TranscribedTextCard transcribedText={transcribedText} />
       )}
+
       <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-xl border border-solid border-muted-foreground/20'>
-        <div className='w-full flex gap-[.25em] flex-wrap h-full'>
-          {pasteSegments.length === 0 && (
-            <Badge variant='secondary' className=''>
-              <ClipboardList className='' />
-              <span>Paste text</span>
-            </Badge>
-          )}
+        <PasteSegmentBadges
+          pasteSegments={pasteSegments}
+          onRemovePasteSegment={removePasteSegment}
+        />
 
-          {pasteSegments.map((pasteSegment) => (
-            <Badge
-              variant='outline'
-              className='zoom-in-bouncy'
-              key={pasteSegment.timecodeInSeconds + pasteSegment.text}
-            >
-              <span className='text-muted-foreground'>
-                {`${formatTimecode(pasteSegment.timecodeInSeconds)}`}
-              </span>
-              {formatPasteSegment(pasteSegment)}
-              <span
-                className='text-muted-foreground px-[.25em]'
-                onClick={() =>
-                  removePasteSegment(
-                    pasteSegment.timecodeInSeconds,
-                    pasteSegment.text
-                  )
-                }
-              >
-                <XIcon className='size-[.8em]' />
-              </span>
-            </Badge>
-          ))}
-        </div>
-        <div className='flex items-center gap-[.5em] flex-0'>
-          {isTranscribing ? (
-            <Loader2 className='size-[1.5em] animate-spin text-cyan-500' />
-          ) : transcription?.text ? (
-            <CircleCheck className='size-[1.5em] text-cyan-500 zoom-in-bouncy' />
-          ) : (
-            <MicIcon
-              className='size-[1.5em]'
-              onClick={() => {
-                if (isRecording) {
-                  stopRecording();
-                }
-              }}
-            />
-          )}
-
-          <Waveform
-            audioData={audioData}
-            isRecording={isRecording}
-            timecode={timecode}
-          />
-
-          <div className='text-[.8em] w-max text-center'>
-            {numMinutes}:{numSeconds}
-          </div>
-        </div>
+        <RecorderContainer
+          state={
+            isTranscribing
+              ? 'transcribing'
+              : transcription?.text
+                ? 'transcribed'
+                : 'recording'
+          }
+          isRecording={isRecording}
+          stopRecording={stopRecording}
+          audioData={audioData}
+          timecode={timecode}
+        />
       </div>
     </div>
   );

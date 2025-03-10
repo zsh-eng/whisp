@@ -109,7 +109,7 @@ export function mergeTranscriptionAndPasteSegments(
 export function formatTranscriptionWithPasteSegments(
   transcription: WhisperVerboseJSON,
   pasteSegments: PasteSegment[]
-) {
+): Segment[] {
   if (pasteSegments.length === 0) {
     return [
       {
