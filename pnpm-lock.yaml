@@ -44,6 +44,9 @@ importers:
       vitest:
         specifier: ^3.0.8
         version: 3.0.8(@types/node@20.17.19)(jiti@2.4.2)(lightningcss@1.29.1)
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@types/chrome':
         specifier: ^0.0.280
