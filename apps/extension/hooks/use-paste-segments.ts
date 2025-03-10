@@ -7,6 +7,7 @@ export type PasteSegment = {
 
 type UsePasteSegmentsReturn = {
   pasteSegments: PasteSegment[];
+  removePasteSegment: (timecodeInSeconds: number, text: string) => void;
 };
 
 type UsePasteSegmentsArgs = {
@@ -55,5 +56,15 @@ export function usePasteSegments({
     };
   }, [active]);
 
-  return { pasteSegments };
+  const removePasteSegment = (timecodeInSeconds: number, text: string) => {
+    setPasteSegments((prev) =>
+      prev.filter(
+        (pasteSegment) =>
+          pasteSegment.timecodeInSeconds !== timecodeInSeconds ||
+          pasteSegment.text !== text
+      )
+    );
+  };
+
+  return { pasteSegments, removePasteSegment };
 }

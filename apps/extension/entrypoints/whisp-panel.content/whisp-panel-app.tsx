@@ -3,7 +3,13 @@ import '~/assets/public.css';
 
 import { Badge } from '@workspace/ui/components/badge';
 import { cn } from '@workspace/ui/lib/utils';
-import { CircleCheck, Loader2, MicIcon } from 'lucide-react';
+import {
+  CircleCheck,
+  ClipboardList,
+  Loader2,
+  MicIcon,
+  XIcon,
+} from 'lucide-react';
 import { useAudioRecorder } from '../../hooks/use-audio-recorder';
 import {
   useCopyToClipboard,
@@ -98,7 +104,7 @@ export default function WhispPanelApp() {
   const numSeconds =
     `${timecode ? Math.floor((timecode % 60000) / 1000) : 0}`.padStart(2, '0');
 
-  const { pasteSegments } = usePasteSegments({
+  const { pasteSegments, removePasteSegment } = usePasteSegments({
     active: isRecording,
     getCurrentTimecode: () => timecodeRef.current ?? 0,
   });
@@ -130,11 +136,12 @@ export default function WhispPanelApp() {
           }
         </div>
       )}
-      <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.5em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.5em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'>
+      <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-xl border border-solid border-muted-foreground/20 cursor-pointer'>
         <div className='w-full flex gap-[.25em] overflow-x-auto'>
           {pasteSegments.length === 0 && (
             <Badge variant='secondary' className=''>
-              Paste text
+              <ClipboardList className='' />
+              <span>Paste text</span>
             </Badge>
           )}
 
@@ -148,6 +155,17 @@ export default function WhispPanelApp() {
                 {`${formatTimecode(pasteSegment.timecodeInSeconds)}`}
               </span>
               {pasteSegment.text.slice(0, 10).trim()}...
+              <span
+                className='text-muted-foreground px-[.25em]'
+                onClick={() =>
+                  removePasteSegment(
+                    pasteSegment.timecodeInSeconds,
+                    pasteSegment.text
+                  )
+                }
+              >
+                <XIcon className='size-[.8em]' />
+              </span>
             </Badge>
           ))}
         </div>
