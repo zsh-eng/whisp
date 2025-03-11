@@ -21,7 +21,10 @@ export function PasteSegmentBadges({
   return (
     <div className='w-full flex gap-[.25em] flex-wrap h-full'>
       {pasteOnCompleteBadge && (
-        <Badge variant='default' className='zoom-in-bouncy'>
+        <Badge
+          variant='outline'
+          className='zoom-in-bouncy bg-cyan-500 text-white'
+        >
           <ClipboardPaste className='' />
           <span>Paste on complete</span>
         </Badge>
