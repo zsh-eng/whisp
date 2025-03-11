@@ -48,3 +48,13 @@ export async function transcribeAudio(
     throw error;
   }
 }
+
+export async function isValidApiKey(apiKey: string): Promise<boolean> {
+  const response = await fetch('https://api.openai.com/v1/models', {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  });
+
+  return response.ok;
+}
