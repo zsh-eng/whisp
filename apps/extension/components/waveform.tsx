@@ -120,13 +120,14 @@ export function Waveform({ audioData, isRecording, timecode }: WaveformProps) {
         const amplitude = amplitudesRef.current[i];
         if (!amplitude) continue;
 
-        const x =
-          Math.round(
-            currentEndOfWaveform -
-              (relativeTimestamp - amplitude.timecode) * speedPixelsPerMs
-          ) + 2;
+        const roundedTimecode = Math.round(amplitude.timecode / 10) * 10;
 
-        if (x < 0) {
+        const x = Math.round(
+          currentEndOfWaveform -
+            (relativeTimestamp - roundedTimecode) * speedPixelsPerMs
+        );
+
+        if (x < 6) {
           break; // terminate early if we've moved too far left
         }
 
