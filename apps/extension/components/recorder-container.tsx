@@ -1,3 +1,4 @@
+import { cn } from '@workspace/ui/lib/utils';
 import { CircleCheck, Loader2, MicIcon } from 'lucide-react';
 
 type RecorderContainerProps = {
@@ -33,20 +34,19 @@ export function RecorderContainer({
       );
     }
 
-    return (
-      <MicIcon
-        className='size-[1.5em]'
-        onClick={() => {
-          if (isRecording) {
-            stopRecording();
-          }
-        }}
-      />
-    );
+    return <MicIcon className='size-[1.5em] cursor-pointer' />;
   };
 
   return (
-    <div className='flex items-center gap-[.5em] flex-0'>
+    <div
+      className={cn(
+        'flex items-center gap-[.5em] flex-0',
+        isRecording ? 'cursor-pointer' : ''
+      )}
+      onClick={() => {
+        stopRecording();
+      }}
+    >
       <RecorderIcon />
 
       <Waveform
