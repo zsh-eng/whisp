@@ -121,3 +121,24 @@ export function formatTranscriptionWithPasteSegments(
 
   return mergeTranscriptionAndPasteSegments(transcription, pasteSegments);
 }
+
+export function transcriptionToInputPrompt(
+  transcription: WhisperVerboseJSON,
+  pasteSegments: PasteSegment[]
+) {
+  const segments = formatTranscriptionWithPasteSegments(
+    transcription,
+    pasteSegments
+  );
+
+  const prompt = segments
+    .map((segment) => {
+      if (segment.type === 'transcription') {
+        return segment.text;
+      }
+      return `<pasted-text>\n${segment.text}\n</pasted-text>`;
+    })
+    .join('\n\n');
+
+  return prompt;
+}

@@ -16,7 +16,11 @@ import {
   useToggleRecorderUi,
 } from '../../hooks/use-toggle-recorder';
 import { useTranscription } from '../../hooks/use-transcription';
-import { formatTranscriptionWithPasteSegments } from '../../lib/format';
+import { fillTextareaAndSendMessage } from '../../lib/autofill';
+import {
+  formatTranscriptionWithPasteSegments,
+  transcriptionToInputPrompt,
+} from '../../lib/format';
 
 export default function WhispPanelApp() {
   const {
@@ -138,13 +142,21 @@ export default function WhispPanelApp() {
   });
 
   useEffect(() => {
-    if (transcribedText && isCopyToClipboardPressedBeforehand) {
-      handleCopyToClipboard();
+    if (transcription && isCopyToClipboardPressedBeforehand) {
+      const prompt = transcriptionToInputPrompt(transcription, pasteSegments);
+      fillTextareaAndSendMessage(prompt).then((result) => {
+        if (result.success) {
+          setIsRecorderUiOpen(false);
+        } else {
+          console.error(result.error);
+        }
+      });
     }
   }, [
     isCopyToClipboardPressedBeforehand,
     handleCopyToClipboard,
-    transcribedText,
+    transcription,
+    pasteSegments,
   ]);
 
   return (
