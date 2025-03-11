@@ -1,5 +1,5 @@
 import '@workspace/ui/globals.css';
-import '~/assets/public.css';
+import '@/assets/main.css';
 
 import { cn } from '@workspace/ui/lib/utils';
 import { PasteSegmentBadges } from '../../components/paste-segment-badges';
@@ -181,7 +181,13 @@ export default function WhispPanelApp() {
         <TranscribedTextCard transcribedText={transcribedText} />
       )}
 
-      <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-2xl border border-solid border-muted-foreground/20'>
+      <div
+        className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] border border-solid border-muted-foreground/20'
+        // for some reason tailwind's shadow class just doesn't work
+        // I have no clue why
+        // so we're just applying the shadow-2xl styling directly
+        style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+      >
         <PasteSegmentBadges
           pasteOnCompleteBadge={isCopyToClipboardPressedBeforehand}
           pasteSegments={pasteSegments}
