@@ -2,6 +2,7 @@ import '@/assets/main.css';
 import '@workspace/ui/globals.css';
 
 import { cn } from '@workspace/ui/lib/utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PasteSegmentBadges } from '../../components/paste-segment-badges';
 import { RecorderContainer } from '../../components/recorder-container';
 import { TranscribedTextCard } from '../../components/transcribed-text-card';
@@ -141,23 +142,28 @@ export default function WhispPanelApp() {
     onCopyToClipboard: handleCopyToClipboard,
   });
 
+  const isProcessingRef = useRef(false);
   useEffect(() => {
-    if (transcription && isCopyToClipboardPressedBeforehand) {
+    if (
+      transcription &&
+      isCopyToClipboardPressedBeforehand &&
+      !isProcessingRef.current
+    ) {
       const prompt = transcriptionToInputPrompt(transcription, pasteSegments);
-      fillTextareaAndSendMessage(prompt).then((result) => {
-        if (result.success) {
-          setIsRecorderUiOpen(false);
-        } else {
-          console.error(result.error);
-        }
-      });
+      isProcessingRef.current = true;
+      fillTextareaAndSendMessage(prompt)
+        .then((result) => {
+          if (result.success) {
+            setIsRecorderUiOpen(false);
+          } else {
+            console.error(result.error);
+          }
+        })
+        .finally(() => {
+          isProcessingRef.current = false;
+        });
     }
-  }, [
-    isCopyToClipboardPressedBeforehand,
-    handleCopyToClipboard,
-    transcription,
-    pasteSegments,
-  ]);
+  }, [isCopyToClipboardPressedBeforehand, transcription, pasteSegments]);
 
   return (
     <div

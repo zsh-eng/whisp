@@ -59,6 +59,7 @@ async function fillTextareaAndSendMessageGeneric(
       error: 'No input element found',
     };
   }
+  console.log('filling in textarea')
   inputElement.textContent = message;
 
   // Give some time for the send message button to render.
@@ -76,10 +77,12 @@ async function fillTextareaAndSendMessageGeneric(
     };
   }
 
+  console.log('clicking send message element');
   sendMessageElement.click();
 
   await new Promise((resolve) => setTimeout(resolve, 100));
 
+  console.log('done')
   return {
     success: true,
   };
