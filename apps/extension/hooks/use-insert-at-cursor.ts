@@ -22,7 +22,7 @@ export function useCopyToClipboardShortcut({
 }) {
   useEffect(() => {
     const listener = (ev: KeyboardEvent) => {
-      if (ev.key === 'c' && ev.metaKey && ev.shiftKey) {
+      if (ev.key === 'e' && ev.metaKey && ev.shiftKey) {
         onCopyToClipboard();
       }
     };

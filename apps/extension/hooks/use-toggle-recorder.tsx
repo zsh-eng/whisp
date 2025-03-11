@@ -39,7 +39,7 @@ export function useStopRecordingShortcut({
 }) {
   useEffect(() => {
     const listener = (ev: KeyboardEvent) => {
-      if (ev.key === 's' && ev.metaKey && ev.shiftKey) {
+      if (ev.key === 'a' && ev.metaKey && ev.shiftKey) {
         onStopRecording();
       }
     };
