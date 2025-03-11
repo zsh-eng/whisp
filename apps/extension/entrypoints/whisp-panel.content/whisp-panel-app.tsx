@@ -181,7 +181,7 @@ export default function WhispPanelApp() {
         <TranscribedTextCard transcribedText={transcribedText} />
       )}
 
-      <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-xl border border-solid border-muted-foreground/20'>
+      <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-2xl border border-solid border-muted-foreground/20'>
         <PasteSegmentBadges
           pasteOnCompleteBadge={isCopyToClipboardPressedBeforehand}
           pasteSegments={pasteSegments}
