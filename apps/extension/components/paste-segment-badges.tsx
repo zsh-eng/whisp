@@ -41,7 +41,7 @@ export function PasteSegmentBadges({
           </span>
           {formatPasteSegment(pasteSegment)}
           <span
-            className='text-muted-foreground px-[.25em]'
+            className='text-muted-foreground px-[.25em] cursor-pointer'
             onClick={() =>
               removePasteSegment(
                 pasteSegment.timecodeInSeconds,
