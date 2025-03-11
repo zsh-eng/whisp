@@ -2,6 +2,12 @@
 
 Whisp is a Chrome extension that brings voice dictation anywhere in the browser.
 
+## Samples
+
+Voice -> sending new prompt
+
+![demo video](docs/screenshots/recording.mov)
+
 ## Motivation
 
 Q: Why not just use Apple's Dictation?
