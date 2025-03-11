@@ -9,7 +9,10 @@ export function TranscribedTextCard({
   transcribedText,
 }: TranscribedTextCardProps) {
   return (
-    <div className='animate-in zoom-in px-[1em] py-[1em] rounded-[1em] w-[32em] h-max bg-background border border-solid border-muted-foreground/20 text-[.875em] font-medium text-muted-foreground'>
+    <div
+      className='animate-in zoom-in px-[1em] py-[1em] rounded-[1em] w-[36em] h-max bg-background border border-solid border-muted-foreground/20 text-[.875em] font-medium text-muted-foreground max-h-[16em] overflow-y-auto'
+      style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+    >
       {transcribedText?.map((segment, i) => {
         if (segment.type === 'transcription') {
           return <div key={`transcription-${i}`}>{segment.text}</div>;
