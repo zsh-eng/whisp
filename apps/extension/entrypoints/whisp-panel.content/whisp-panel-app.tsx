@@ -177,7 +177,7 @@ export default function WhispPanelApp() {
       )}
 
       <div
-        className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] px-[1em] py-[.75em] border border-solid border-[oklch(0.708, 0, 0)]  bg-background/70 backdrop-blur-md'
+        className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] px-[1em] py-[.75em] border border-solid border-[oklch(0.708, 0, 0)] bg-background/80 backdrop-blur-md'
         // for some reason tailwind's shadow class just doesn't work
         // I have no clue why
         // so we're just applying the shadow-2xl styling directly
