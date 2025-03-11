@@ -1,5 +1,5 @@
-import '@workspace/ui/globals.css';
 import '@/assets/main.css';
+import '@workspace/ui/globals.css';
 
 import { cn } from '@workspace/ui/lib/utils';
 import { PasteSegmentBadges } from '../../components/paste-segment-badges';
@@ -166,17 +166,6 @@ export default function WhispPanelApp() {
         isRecorderUiOpen ? '' : 'hidden'
       )}
     >
-      {/* <div className='w-full flex items-center gap-[.5em]'>
-        <div className='flex items-center gap-[.5em] bg-background rounded-[.5em] px-[.5em] py-[.5em] shadow-xl border border-solid border-muted-foreground/20'>
-          <div className='flex items-center w-max gap-[.25em]'>
-            <Keycap character='⇧' />
-            <Keycap character='⌘' />
-            <Keycap character='S' />
-          </div>
-          <div className='text-[.75em]'>Stop recording</div>
-        </div>
-      </div> */}
-
       {transcribedText && (
         <TranscribedTextCard transcribedText={transcribedText} />
       )}

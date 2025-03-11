@@ -22,8 +22,8 @@ export default defineConfig({
       'start-recording': {
         description: 'Start recording audio',
         suggested_key: {
-          default: 'Ctrl+Shift+L',
-          mac: 'Command+Shift+L',
+          default: 'Ctrl+Shift+X',
+          mac: 'Command+Shift+X',
         },
       },
     },
