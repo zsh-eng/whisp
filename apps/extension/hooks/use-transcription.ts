@@ -10,32 +10,42 @@ type UseTranscriptionReturn = {
   resetTranscription: () => void;
 };
 
+type UseTranscriptionOptions = {
+  onTranscriptionComplete?: (transcription: WhisperVerboseJSON) => void;
+};
+
 /**
  * Handles the transcription of audio with OpenAI's Whisper API.
  */
-export function useTranscription(): UseTranscriptionReturn {
+export function useTranscription({
+  onTranscriptionComplete,
+}: UseTranscriptionOptions): UseTranscriptionReturn {
   const [transcriptionVerboseJson, setTranscriptionVerboseJson] =
     useState<WhisperVerboseJSON | null>(null);
   const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleTranscription = useCallback(async (audioBlob: Blob) => {
-    try {
-      setTranscriptionVerboseJson(null);
-      setError(null);
-      setIsTranscribing(true);
+  const handleTranscription = useCallback(
+    async (audioBlob: Blob) => {
+      try {
+        setTranscriptionVerboseJson(null);
+        setError(null);
+        setIsTranscribing(true);
 
-      const data = await transcribeAudio(
-        audioBlob,
-        import.meta.env.VITE_PUBLIC_API_KEY
-      );
-      setTranscriptionVerboseJson(data);
-    } catch (error) {
-      setError(error as string);
-    } finally {
-      setIsTranscribing(false);
-    }
-  }, []);
+        const data = await transcribeAudio(
+          audioBlob,
+          import.meta.env.VITE_PUBLIC_API_KEY
+        );
+        setTranscriptionVerboseJson(data);
+        onTranscriptionComplete?.(data);
+      } catch (error) {
+        setError(error as string);
+      } finally {
+        setIsTranscribing(false);
+      }
+    },
+    [onTranscriptionComplete]
+  );
 
   const resetTranscription = useCallback(() => {
     setTranscriptionVerboseJson(null);

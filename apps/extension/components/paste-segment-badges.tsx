@@ -1,19 +1,28 @@
 import { Badge } from '@workspace/ui/components/badge';
-import { ClipboardList, XIcon } from 'lucide-react';
+import { ClipboardList, ClipboardPaste, XIcon } from 'lucide-react';
 import { PasteSegment } from '../hooks/use-paste-segments';
 import { formatPasteSegment, formatTimecode } from '../lib/format';
 
 type PasteSegmentBadgesProps = {
   pasteSegments: PasteSegment[];
   onRemovePasteSegment: (timecodeInSeconds: number, text: string) => void;
+  pasteOnCompleteBadge: boolean;
 };
 
 export function PasteSegmentBadges({
   pasteSegments,
   onRemovePasteSegment: removePasteSegment,
+  pasteOnCompleteBadge,
 }: PasteSegmentBadgesProps) {
   return (
     <div className='w-full flex gap-[.25em] flex-wrap h-full'>
+      {pasteOnCompleteBadge && (
+        <Badge variant='default' className='zoom-in-bouncy'>
+          <ClipboardPaste className='' />
+          <span>Paste on complete</span>
+        </Badge>
+      )}
+
       {pasteSegments.length === 0 && (
         <Badge variant='secondary' className=''>
           <ClipboardList className='' />

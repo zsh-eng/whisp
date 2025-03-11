@@ -25,12 +25,16 @@ export default function WhispPanelApp() {
     setIsOpen: setIsRecorderUiOpen,
   } = useToggleRecorderUi();
 
+  const [
+    isCopyToClipboardPressedBeforehand,
+    setIsCopyToClipboardPressedBeforehand,
+  ] = useState(false);
   const {
     transcription,
     handleTranscription,
     isTranscribing,
     resetTranscription,
-  } = useTranscription();
+  } = useTranscription({});
 
   // AUDIO RECORDING
   const [audioData, setAudioData] = useState<Float32Array | null>(null);
@@ -58,7 +62,7 @@ export default function WhispPanelApp() {
 
       await handleTranscription(audioBlob);
     },
-    [isRecorderUiOpenRef]
+    [isRecorderUiOpenRef, handleTranscription]
   );
   const {
     isRecording,
@@ -78,6 +82,7 @@ export default function WhispPanelApp() {
     setAudioData(null);
     setTimecode(null);
     timecodeRef.current = null;
+    setIsCopyToClipboardPressedBeforehand(false);
   }, []);
   // Keyboard shortcut to stop the recording
   useStopRecordingShortcut({
@@ -107,8 +112,10 @@ export default function WhispPanelApp() {
   const transcribedText = transcription
     ? formatTranscriptionWithPasteSegments(transcription, pasteSegments)
     : null;
+
   const handleCopyToClipboard = useCallback(() => {
     if (!transcribedText) {
+      setIsCopyToClipboardPressedBeforehand((prev) => !prev);
       return;
     }
 
@@ -116,7 +123,7 @@ export default function WhispPanelApp() {
       transcribedText
         .map((segment) =>
           segment.type === 'paste'
-            ? `<pasted-text>${segment.text}</pasted-text>`
+            ? `<pasted-text>\n${segment.text}\n</pasted-text>`
             : segment.text
         )
         .join('\n\n')
@@ -125,9 +132,20 @@ export default function WhispPanelApp() {
     // Close after copying to clipboard
     setIsRecorderUiOpen(false);
   }, [copyToClipboard, transcribedText, setIsRecorderUiOpen]);
+
   useCopyToClipboardShortcut({
     onCopyToClipboard: handleCopyToClipboard,
   });
+
+  useEffect(() => {
+    if (transcribedText && isCopyToClipboardPressedBeforehand) {
+      handleCopyToClipboard();
+    }
+  }, [
+    isCopyToClipboardPressedBeforehand,
+    handleCopyToClipboard,
+    transcribedText,
+  ]);
 
   return (
     <div
@@ -153,6 +171,7 @@ export default function WhispPanelApp() {
 
       <div className='zoom-in-bouncy flex flex-col justify-center items-center gap-[.75em] rounded-[1em] w-[24em] h-max bg-background px-[1em] py-[.75em] shadow-xl border border-solid border-muted-foreground/20'>
         <PasteSegmentBadges
+          pasteOnCompleteBadge={isCopyToClipboardPressedBeforehand}
           pasteSegments={pasteSegments}
           onRemovePasteSegment={removePasteSegment}
         />
