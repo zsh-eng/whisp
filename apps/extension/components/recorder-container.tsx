@@ -55,7 +55,7 @@ export function RecorderContainer({
         timecode={timecode}
       />
 
-      <div className='text-[.8em] w-max text-center'>
+      <div className='text-[.8em] min-w-[32px] text-center'>
         {numMinutes}:{numSeconds}
       </div>
     </div>
