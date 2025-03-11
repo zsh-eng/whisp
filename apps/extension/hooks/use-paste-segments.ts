@@ -42,8 +42,7 @@ export function usePasteSegments({
 
     const handlePaste = (event: ClipboardEvent) => {
       const timecode = getCurrentTimecode();
-      console.log('timecode received is', timecode);
-      const text = event.clipboardData?.getData('text');
+      const text = event.clipboardData?.getData('text')?.trim();
       if (!text) {
         return;
       }
