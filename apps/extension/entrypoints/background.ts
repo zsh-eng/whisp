@@ -36,4 +36,14 @@ export default defineBackground(() => {
       handleStartRecording(tab);
     }
   });
+
+  browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (!_sender.tab) {
+      return;
+    }
+
+    if (message.action === 'start-recording') {
+      handleStartRecording(_sender.tab);
+    }
+  });
 });

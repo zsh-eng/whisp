@@ -11,7 +11,7 @@ function isOnDeepseekWebsite() {
 }
 
 function isOnPerplexityWebsite() {
-  return window.location.hostname === 'perplexity.ai';
+  return window.location.hostname === 'www.perplexity.ai';
 }
 
 type FillTextAreaReturn =
@@ -79,7 +79,6 @@ async function fillTextareaAndSendMessageGeneric(
   sendMessageElement.click();
 
   await new Promise((resolve) => setTimeout(resolve, 100));
-  inputElement.textContent = '';
 
   return {
     success: true,
